@@ -1,0 +1,23 @@
+# Ignore venv
+/venv/
+
+# Ignore IDE files
+/.vscode/
+/.idea/
+
+# Ignore tests and python temp files
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*~
+
+# Ignore retry files
+*.retry
+
+# Ignore secrets files
+.env
+/secrets/*
+
+
+# Ignore logs files
+*.log

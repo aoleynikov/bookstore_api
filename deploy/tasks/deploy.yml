@@ -1,0 +1,74 @@
+- hosts: "backend"
+  vars:
+    - server_username: "{{ server_username }}"
+    - domain: "{{ domain }}"
+    - slack_token: "{{ slack_token }}"
+  tasks:
+    - name: "Make a directory"
+      file:
+        name: "~/backend/"
+        state: "directory"
+    - name: "Inject the .env"
+      copy:
+        src: "./../../.env"
+        dest: "~/backend/"
+    - name: "Inject the docker-compose.yml"
+      copy:
+        src: "./../../docker-compose.yml"
+        dest: "~/backend/"
+    - name: "docker-compose down --remove-orphans"
+      command: "docker-compose down"
+      args:
+        chdir: "~/backend/"
+    - name: "Remove docker volumes"
+      shell: "docker volume rm $(docker volume ls -q -f dangling=true)"
+      ignore_errors: yes
+    - name: "Send the docker app image file"
+      copy:
+        src: "./../files/app"
+        dest: "/tmp/app"
+    - name: "Send the docker background image file"
+      copy:
+        src: "./../files/background"
+        dest: "/tmp/background"
+    - name: "Load the docker app image"
+      shell: "docker load < /tmp/app"
+    - name: "Load the docker background image"
+      shell: "docker load < /tmp/background"
+    - name: "Copy base nginx config"
+      become: yes
+      template:
+        src: "./../templates/nginx.conf.j2"
+        dest: "/etc/nginx/nginx.conf"
+    - name: "Copy backend nginx config"
+      become: yes
+      template:
+        src: "./../templates/backend.nginx.conf.j2"
+        dest: "/etc/nginx/conf.d/backend.nginx.conf"
+    - name: "Reload nginx"
+      become: yes
+      service:
+        name: "nginx"
+        state: "restarted"
+    - name: "docker-compose up -d"
+      command: "docker-compose up -d"
+      args:
+        chdir: "~/backend/"
+    - name: "Delete the .env"
+      file:
+        path: "~/backend/.env"
+        state: "absent"
+    - name: "Delete the docker-compose.yml"
+      file:
+        path: "~/backend/docker-compose.yml"
+        state: "absent"
+    - name: "Delete the docker background image file"
+      file:
+        path: "/tmp/background"
+        state: "absent"
+    - name: "Delete the docker app image file"
+      file:
+        path: "/tmp/app"
+        state: "absent"
+    - name: "Delete dangling images"
+      shell: "docker image prune -f"

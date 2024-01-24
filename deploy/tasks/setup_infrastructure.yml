@@ -1,0 +1,64 @@
+- hosts: "backend"
+  vars:
+    - email: "{{ email }}"
+    - server_username: "{{ server_username }}"
+    - domain: "{{ domain }}"
+  tasks:
+    - name: "Update and upgrade apt packages"
+      become: yes
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400
+    - name: "Install docker"
+      become: yes
+      apt:
+        name: "docker.io"
+    - name: "Start docker"
+      become: yes
+      service:
+        name: "docker"
+        state: "started"
+        enabled: yes
+    - name: "Add your user to the docker group"
+      become: yes
+      command: "usermod -aG docker {{ server_username }}"
+    - name: "Download the stable release of docker-compose"
+      shell: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
+    - name: "Apply executable permissions to the binary docker-compose"
+      become: yes
+      shell: "chmod +x /usr/local/bin/docker-compose"
+    - name: "Install nginx"
+      become: yes
+      apt:
+        name: "nginx"
+    - name: "Install software-properties-common"
+      become: yes
+      apt:
+        name: "software-properties-common"
+    - name: "Install certbot nginx plugin"
+      become: yes
+      apt:
+        name: "python3-certbot-nginx"
+    - name: "Stop nginx"
+      become: yes
+      service:
+        name: "nginx"
+        state: "stopped"
+    - name: "Generate certificate"
+      become: yes
+      command: "certbot certonly --standalone --agree-tos --keep-until-expiring --preferred-challenges http --email {{ email }} -d {{ domain }}"
+    - name: "Add cron rule to update certificate every 2 months"
+      become: yes
+      cron:
+        minute: 0
+        hour: 0
+        day: 1
+        month: "*/2"
+        job: 'certbot renew --pre-hook "service nginx stop" --post-hook "service nginx start"'
+    - name: "Start nginx"
+      become: yes
+      service:
+        name: "nginx"
+        state: "started"
+        enabled: yes

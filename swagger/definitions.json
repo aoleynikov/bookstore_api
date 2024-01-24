@@ -1,0 +1,325 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Bookstore API",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "summary": "Log in a user",
+                "description": "This endpoint is used to authenticate a user and return a token.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "The user's credentials",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/TokenPair"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "summary": "Refresh a user's token",
+                "description": "This endpoint is used to refresh a user's token.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "refresh_token",
+                        "description": "The user's current refrehs token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/TokenPair"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "summary": "Log out a user",
+                "description": "This endpoint is used to invalidate a user's token.",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Authorization",
+                        "description": "The user's current token",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/users": {
+            "post": {
+                "summary": "Create a user",
+                "description": "This endpoint is used to create a new user.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "The user's information",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/TokenPair"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    }
+                }
+            }
+        },
+        "/inventory/": {
+            "get": {
+                "summary": "Get inventory list",
+                "description": "This endpoint is used to get a list of all inventory items.",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/InventoryItem"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create inventory item",
+                "description": "This endpoint is used to create a new inventory item.",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "The inventory item's information",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InventoryItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/InventoryItem"
+                        }
+                    }
+                }
+            }
+        },
+        "/inventory/{item_id}": {
+            "put": {
+                "summary": "Update inventory item",
+                "description": "This endpoint is used to update an existing inventory item.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "item_id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "The new information for the inventory item",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InventoryItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/InventoryItem"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete inventory item",
+                "description": "This endpoint is used to delete an inventory item.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "item_id",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        },
+        "/inventory/{item_id}/alert": {
+            "post": {
+                "summary": "Create inventory item alert",
+                "description": "This endpoint is used to create an alert for an inventory item.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "item_id",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "The alert's information",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Alert"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Alert"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The user's ID"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "The user's email"
+                },
+                "role": {
+                    "type": "string",
+                    "description": "The user's role"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The time the user was created"
+                }
+            }
+        },
+        "TokenPair": {
+            "type": "object",
+            "properties": {
+                "access": {
+                    "type": "string",
+                    "description": "access token"
+                },
+                "refresh": {
+                    "type": "string",
+                    "description": "refresh token"
+                }
+            }
+        },
+        "InventoryItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The item's ID"
+                },
+                "author": {
+                    "type": "string",
+                    "description": "The book's author"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "The book's title"
+                },
+                "price": {
+                    "type": "integer",
+                    "description": "The item's price in cents"
+                },
+                "quantity": {
+                    "type": "integer",
+                    "description": "The item's quantity"
+                },
+                "alert": {
+                    "type": "object",
+                    "properties": {
+                        "quantity": {
+                            "type": "integer",
+                            "description": "The item's quantity below which a notification is sent"
+                        }
+                    }
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The time the item was created"
+                }
+            }
+        }
+    }
+}
